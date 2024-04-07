@@ -9,6 +9,8 @@ import { CommunicationService } from "./communication.service";
 import { GuestComponent } from "./guest/guest.component";
 import { HotelComponent } from "./hotel/hotel.component";
 import { RoomComponent } from "./room/room.component";
+import { BirdComponent } from "./bird/bird.component";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -16,13 +18,15 @@ import { RoomComponent } from "./room/room.component";
     RoomComponent,
     HotelComponent,
     GuestComponent,
+    BirdComponent,
   ],
   imports: [
     CommonModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    BrowserAnimationsModule
   ],
   providers: [CommunicationService],
   bootstrap: [AppComponent],

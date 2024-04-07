@@ -6,7 +6,7 @@ import { Hotel } from "../../../common/tables/Hotel";
 import { HotelPK } from "../../../common/tables/HotelPK";
 import { Room } from "../../../common/tables/Room";
 import { Guest } from "../../../common/tables/Guest";
-
+import { Bird } from "../../../common/tables/Bird";
 import { DatabaseService } from "../services/database.service";
 import Types from "../types";
 
@@ -18,7 +18,62 @@ export class DatabaseController {
 
   public get router(): Router {
     const router: Router = Router();
+    // ======= BIRD ROUTES =======
+    router.get("/birds", (req: Request, res: Response, _: NextFunction) => {
+      this.databaseService
+        .getBirds()
+        .then((result: pg.QueryResult) => {
+          res.json(result.rows);
+        })
+        .catch((e: Error) => {
+          console.error(e.stack);
+        });
+    });
+    router.post("/birds/insert", (req: Request, res: Response, _: NextFunction) => {
+      const bird = {
+        nomscientifique: req.body.nomscientifique,
+        nomcommun: req.body.nomcommun,
+        statutspeces: req.body.statutspeces,
+        nomscientifiquecomsommer: req.body.nomscientifiquecomsommer,
+      };
+      this.databaseService
+        .insertBird(bird)
+        .then((result: pg.QueryResult) => {
+          res.json(result.rows);
+        })
+        .catch((e: Error) => {
+          console.error(e.stack);
+        });
+    });
 
+    router.put("/birds/update", (req: Request, res: Response, _: NextFunction) => {
+      const bird: Bird = {
+        nomscientifique: req.body.nomscientifique,
+        nomcommun: req.body.nomcommun,
+        statutspeces: req.body.statutspeces,
+        nomscientifiquecomsommer: req.body.nomscientifiquecomsommer || null,
+      };
+      this.databaseService
+        .updateBird(bird)
+        .then((result: pg.QueryResult) => {
+          res.json(result.rows);
+        })
+        .catch((e: Error) => {
+          console.error(e.stack);
+        });
+    });
+
+    router.post("/birds/delete/:nomscientifique", (req: Request, res: Response, _: NextFunction) => {
+      const nomscientifique = req.params.nomscientifique;
+      this.databaseService
+        .deleteBird(nomscientifique)
+        .then((result: pg.QueryResult) => {
+          res.json(result.rows);
+        })
+        .catch((e: Error) => {
+          console.error(e.stack);
+        });
+    });
     // ======= HOTEL ROUTES =======
     // ex http://localhost:3000/database/hotel?hotelNb=3&name=LeGrandHotel&city=laval
     router.get("/hotels", (req: Request, res: Response, _: NextFunction) => {

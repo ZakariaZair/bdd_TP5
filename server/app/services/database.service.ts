@@ -4,29 +4,98 @@ import "reflect-metadata";
 import { Room } from "../../../common/tables/Room";
 import { Hotel } from "../../../common/tables/Hotel";
 import { Gender, Guest } from "../../../common/tables/Guest";
+import { Bird } from "../../../common/tables/Bird";
 
 @injectable()
 export class DatabaseService {
   // TODO: A MODIFIER POUR VOTRE BD
   public connectionConfig: pg.ConnectionConfig = {
     user: "postgres",
-    database: "postgres",
-    password: "mysecretpassword",
+    database: "ornithologue_db", 
+    password: "Giottocolor02!",
     port: 5432,
     host: "127.0.0.1",
     keepAlive: true,
   };
-
+  //Especeoiseau
   public pool: pg.Pool = new pg.Pool(this.connectionConfig);
 
   // ======= DEBUG =======
   public async getAllFromTable(tableName: string): Promise<pg.QueryResult> {
     const client = await this.pool.connect();
-    const res = await client.query(`SELECT * FROM HOTELDB.${tableName};`);
+    const res = await client.query(`SELECT * FROM ornithologue_bd.${tableName};`);
+    client.release();
+    return res;
+  }
+  // ======= BIRD =======
+  public async createBird(bird: Bird): Promise<pg.QueryResult> {
+    const client = await this.pool.connect();
+
+    if (!bird.nomscientifique || !bird.nomcommun || !bird.statutspeces)
+      throw new Error("Invalid create bird values");
+
+    const values: string[] = [bird.nomscientifique, bird.nomcommun, bird.statutspeces, bird.nomscientifiquecomsommer];
+    const queryText: string = `INSERT INTO ornithologue_bd.Especeoiseau VALUES($1, $2, $3, $4);`;
+
+    const res = await client.query(queryText, values);
     client.release();
     return res;
   }
 
+  public async getBirds(): Promise<pg.QueryResult> {
+    const client = await this.pool.connect();
+    const res = await client.query("SELECT * FROM ornithologue_bd.Especeoiseau;");
+    client.release();
+    return res;
+  }
+  public async insertBird(bird: Bird): Promise<pg.QueryResult> {
+    const client = await this.pool.connect();
+    if (!bird.nomscientifique || !bird.nomcommun || !bird.statutspeces)
+      throw new Error("Invalid insert query");
+
+    const query = `INSERT INTO ornithologue_bd.Especeoiseau VALUES('${bird.nomscientifique}', '${bird.nomcommun}', '${bird.statutspeces}', '${bird.nomscientifiquecomsommer}');`;
+    const res = await client.query(query);
+    client.release();
+    return res;
+  }
+
+  public async updateBird(bird: Bird): Promise<pg.QueryResult> {
+    const client = await this.pool.connect();
+    let toUpdateValues = [];
+
+    if (bird.nomcommun.length > 0) toUpdateValues.push(`nomcommun = '${bird.nomcommun}'`);
+    toUpdateValues.push(`statutspeces = '${bird.statutspeces}'`);
+    if (bird.nomscientifiquecomsommer) {
+      toUpdateValues.push(`nomscientifiquecomsommer = '${bird.nomscientifiquecomsommer}'`)
+    } else {
+      toUpdateValues.push(`nomscientifiquecomsommer = NULL`);
+    }
+    
+    if (
+      !bird.nomscientifique ||
+      bird.nomscientifique.length === 0 || 
+      toUpdateValues.length === 0
+    )
+      throw new Error("Invalid bird update query");
+
+    const query = `UPDATE ornithologue_bd.Especeoiseau SET ${toUpdateValues.join(
+      ", "
+    )} WHERE nomscientifique = '${bird.nomscientifique}';`;
+    const res = await client.query(query);
+    client.release();
+    return res;
+  }
+
+  public async deleteBird(scName: string): Promise<pg.QueryResult> {
+    if (scName.length === 0) throw new Error("Invalid delete query");
+
+    const client = await this.pool.connect();
+    const query = `DELETE FROM ornithologue_bd.Especeoiseau WHERE nomscientifique = '${scName}';`;
+
+    const res = await client.query(query);
+    client.release();
+    return res;
+  }
   // ======= HOTEL =======
   public async createHotel(hotel: Hotel): Promise<pg.QueryResult> {
     const client = await this.pool.connect();

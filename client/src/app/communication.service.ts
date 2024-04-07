@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { of, Observable, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { Hotel } from "../../../common/tables/Hotel";
+import { Bird } from "../../../common/tables/Bird"; 
 import { Room } from "../../../common/tables/Room";
 import { HotelPK } from "../../../common/tables/HotelPK";
 import { Guest } from "../../../common/tables/Guest";
@@ -21,6 +22,30 @@ export class CommunicationService {
 
   public filter(filterBy: string): void {
     this._listners.next(filterBy);
+  }
+
+  public getBirds(): Observable<Bird[]> {
+    return this.http
+      .get<Bird[]>(this.BASE_URL + "/birds")
+      .pipe(catchError(this.handleError<Bird[]>("getBirds")));
+  }
+
+  public insertBird(bird: Bird): Observable<number> {
+    return this.http
+      .post<number>(this.BASE_URL + "/birds/insert", bird)
+      .pipe(catchError(this.handleError<number>("insertBird")));  
+  }
+  
+  public deleteBird(nomscientifique: string): Observable<number> {
+    return this.http
+      .post<number>(this.BASE_URL + "/birds/delete/" + nomscientifique, {})
+      .pipe(catchError(this.handleError<number>("deleteBird")));
+  }
+
+  public updateBird(bird: Bird): Observable<number> {
+    return this.http
+      .put<number>(this.BASE_URL + "/birds/update", bird)
+      .pipe(catchError(this.handleError<number>("updateBird")));
   }
 
   public getHotels(): Observable<Hotel[]> {

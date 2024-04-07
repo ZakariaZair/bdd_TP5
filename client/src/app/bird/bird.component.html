@@ -1,0 +1,68 @@
+<div id="bird">
+  <h1>Birds</h1>
+
+  <div class="divider"></div>
+
+  <table id="ht" align="center" border="1" width="1000" class="table-striped table-hover">
+    <thead class="header">
+      <th class="contentCell">BIRD SCIENTIFIC NAME</th>
+      <th class="contentCell">BIRD COMMON NAME</th>
+      <th class="contentCell">BIRD STATUS</th>
+      <th class="contentCell">BIRD PREDATOR SCIENTIFIC NAME</th>
+      <th class="actionCell">ACTION</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let bird of birds; let i = index">
+        <td class="contentCell">{{ bird.nomscientifique }}</td>
+        <td class="contentCell" contenteditable="true" (blur)="changeBirdCommonName($event, i)">{{ bird.nomcommun}}</td>
+        <td class="contentCell">
+          <select class="status-select" (change)="changeBirdStatus($event, i)">
+            <option value="Non menacée" [selected]="bird.statutspeces === 'Non menacée'">Non menacée</option>
+            <option value="Préoccupation mineure" [selected]="bird.statutspeces === 'Préoccupation mineure'">Préoccupation mineure</option>
+            <option value="Vulnérable" [selected]="bird.statutspeces === 'Vulnérable'">Vulnérable</option>
+          </select>
+        </td>
+        <td class="contentCell">
+          <select [(ngModel)]="bird.nomscientifiquecomsommer" (change)="changeBirdScNameConsumer($event, i)">
+            <ng-container *ngFor="let otherBird of birds">
+              <ng-container *ngIf="otherBird !== bird">
+                <option [value]="otherBird.nomscientifique" [selected]="bird.nomscientifiquecomsommer === otherBird.nomscientifique">
+                  {{ otherBird.nomscientifique }}
+                </option>
+              </ng-container>
+            </ng-container>
+            <option value=""></option>
+          </select>
+        </td>
+        <td class="actionCell">
+          <button type="button" class="submitbtn" (click)="updateBird(i)"><i class="fa fa-edit"></i></button>
+          <button type="button" class="deletebtn" (click)="deleteBird(bird.nomscientifique)"><i class="fa fa-trash-o"></i></button>
+        </td>
+      </tr>
+
+      <tr class="blank_row">
+        <td class="contentCell" contenteditable="true" placeholder="New Scientific Name" #nomscientifique>Rastafari</td>
+        <td class="contentCell" contenteditable="true" placeholder="New Common Name" #nomcommun>Rasta</td>
+        <td class="contentCell">
+          <select #statutspeces>
+            <option value=""></option>
+            <option value="Non menacée">Non menacée</option>
+            <option value="Préoccupation mineure">Préoccupation mineure</option>
+            <option value="Vulnérable">Vulnérable</option>
+          </select>
+        </td>
+        <td class="contentCell">
+          <select #nomscientifiquecomsommer>
+            <option value=""></option>
+            <option *ngFor="let bird of birds" [value]="bird.nomscientifique">{{ bird.nomscientifique }}</option>
+          </select>
+        </td>        
+        <td class="contentCell"></td>
+    </tr>
+
+    </tbody>
+  </table>
+
+  <button type="button" class="btn" (click)="insertBird()">+</button>
+
+</div>
